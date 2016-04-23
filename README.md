@@ -8,3 +8,5 @@ An experiment to create a string filter view akin to those found in CAT tools li
 
 TODO:
 Add diff-highlighting, to highlight the text corresponding to input string
+
+![alt tag](https://github.com/EirikBirkeland/cat-filter/blob/master/example.PNG)
