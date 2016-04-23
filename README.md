@@ -6,7 +6,7 @@ An experiment to create a string filter view akin to those found in CAT tools li
 * Source and Target strings have one input field each
 * RegEx entered into a field hides non-matching strings
 
-TODO:
+**TODO**:
 Add diff-highlighting, to highlight the text corresponding to input string
 
 ![alt tag](https://github.com/EirikBirkeland/cat-filter/blob/master/example.PNG)
