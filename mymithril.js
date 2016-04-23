@@ -1,9 +1,10 @@
 "use strict"
 const m = require('mithril')
+const $ = require('jquery')
 window.m = m
 
 const Util = {
-   interleave(a, b){
+   interleave(a, b){ // unused, but keep for later
       if (a.length != b.length) throw new Error("Oops!")
       return a.reduce((acc, ele, i) => {
          var arr = []
@@ -11,6 +12,13 @@ const Util = {
          acc = acc.concat(arr)
          return acc
       }, [])
+   },
+   initArray(len){
+      let array = []
+      for(let i=0;i<len;i++){
+         array[i] = undefined
+      }
+      return array
    }
 }
 
@@ -26,23 +34,28 @@ app.Item = function (str) {
 app.ItemList = Array;
 
 app.vm = (function () {
-   // TODO: This is a dummy data source. Try other methods.
-   // TODO: Grab 5 random sentences from Tatoeba.
+
+   // TODO: Think about how I can improve Tatoeba by using this.
+   // TODO: Add highlighting option for matches
+   // TODO: 
+
    const vm = {}
 
-   vm.sourceList = [
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-      "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-      "It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",
-      "It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
-   ]
+   const TABLE_LINES = 250
 
-   vm.targetList = [
-      "Lorem Ipsum er rett og slett dummytekst fra og for trykkeindustrien.",
-      "Lorem Ipsum har vært bransjens standard for dummytekst helt siden 1500-tallet, da en ukjent boktrykker stokket en mengde bokstaver for å lage et prøveeksemplar av en bok.",
-      "Lorem Ipsum har tålt tidens tann usedvanlig godt, og har i tillegg til å bestå gjennom fem århundrer også tålt spranget over til elektronisk typografi uten vesentlige endringer",
-      "Lorem Ipsum ble gjort allment kjent i 1960-årene ved lanseringen av Letraset-ark med avsnitt fra Lorem Ipsum, og senere med sideombrekkingsprogrammet Aldus PageMaker som tok i bruk nettopp Lorem Ipsum for dummytekst."
-   ]
+   vm.sourceList = Util.initArray(TABLE_LINES)
+   vm.targetList = Util.initArray(TABLE_LINES)
+
+   vm.sourceMatchCount = 0
+
+   vm.lists = m.prop('')
+   m.request({method: "GET", url: "nob.json"})
+      .then((data) => {
+         vm.sourceList.forEach((ele, i) => {
+            vm.sourceList[i].value(data[i][0])
+            vm.targetList[i].value(data[i][1])
+         })
+      })
 
    vm.initList = function (inputArray) {
       const list = new app.ItemList
@@ -54,8 +67,16 @@ app.vm = (function () {
 
    vm.processInput = function (arrayToProcess) {
       return function (matchText) {
+         vm.sourceMatchCount = 0
          arrayToProcess.forEach(function (ele) {
-            ele.notMatch(!ele.value().match(matchText))
+            if(!ele.value().match(matchText)) {
+               ele.notMatch(true)
+            }
+            else {
+               vm.sourceMatchCount++
+               ele.notMatch(false)
+            }
+
          })
       }
    }
@@ -63,6 +84,7 @@ app.vm = (function () {
    vm.init = function () {
       vm.sourceList = app.vm.initList(app.vm.sourceList)
       vm.targetList = app.vm.initList(app.vm.targetList)
+      window.sourceList = vm.sourceList
       vm.processSourceInput = app.vm.processInput(vm.sourceList)
       vm.processTargetInput = app.vm.processInput(vm.targetList)
    }
@@ -82,6 +104,8 @@ app.view = function (ctrl) {
          type: 'checkbox',
          onclick: app.vm.combined
       }), "RegEx",
+      m('br'),
+      "Matching: ", app.vm.sourceMatchCount,
       m('table', {
          border: 1
       }, [
