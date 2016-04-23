@@ -59,29 +59,28 @@ app.vm = (function () {
          })
       }
    }
+
+   vm.init = function () {
+      vm.sourceList = app.vm.initList(app.vm.sourceList)
+      vm.targetList = app.vm.initList(app.vm.targetList)
+      vm.processSourceInput = app.vm.processInput(sourceList)
+      vm.processTargetInput = app.vm.processInput(targetList)
+   }
+
    return vm
 })()
 
 app.controller = function () {
-   const sourceList = app.vm.initList(app.vm.sourceList)
-   const targetList = app.vm.initList(app.vm.targetList)
-   const processSourceInput = app.vm.processInput(sourceList)
-   const processTargetInput = app.vm.processInput(targetList)
-   return {
-      sourceList,
-      targetList,
-      processSourceInput,
-      processTargetInput
-   }
+   app.vm.init()
 }
 
 app.view = function (ctrl) {
    return [
-      m('input', {oninput: m.withAttr('value', ctrl.processSourceInput)}),
-      m('input', {oninput: m.withAttr('value', ctrl.processTargetInput)}),
+      m('input', {oninput: m.withAttr('value', app.vm.processSourceInput)}),
+      m('input', {oninput: m.withAttr('value', app.vm.processTargetInput)}),
       m('input', {
          type: 'checkbox',
-         onclick: ctrl.combined
+         onclick: app.vm.combined
       }), "RegEx",
       m('table', {
          border: 1
@@ -93,14 +92,14 @@ app.view = function (ctrl) {
             ])
          ]),
          m('tbody', [
-            ctrl.sourceList.map((ele, i) => {
+            app.vm.sourceList.map((ele, i) => {
                return m('tr', [
                   m('td', {
-                     contenteditable: '', style: {textDecoration: ctrl.sourceList[i].notMatch() ? "line-through" : ""}
-                  }, ctrl.sourceList[i].value()),
+                     contenteditable: '', style: {textDecoration: app.vm.sourceList[i].notMatch() ? "line-through" : ""}
+                  }, app.vm.sourceList[i].value()),
                   m('td', {
-                     contenteditable: '', style: {textDecoration: ctrl.targetList[i].notMatch() ? "line-through" : ""}
-                  }, ctrl.targetList[i].value())
+                     contenteditable: '', style: {textDecoration: app.vm.targetList[i].notMatch() ? "line-through" : ""}
+                  }, app.vm.targetList[i].value())
                ])
             })
          ])
