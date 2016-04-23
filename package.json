@@ -1,0 +1,24 @@
+{
+  "name": "cat-filter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "baconjs": "^0.7.84",
+    "diff-match-patch": "^1.0.0",
+    "jquery": "^2.2.3",
+    "lodash": "^4.11.1",
+    "mithril": "^0.2.3"
+  },
+  "devDependencies": {
+    "css-loader": "^0.23.1",
+    "msx": "^0.4.1",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.13.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eirik Birkeland",
+  "license": "ISC"
+}
