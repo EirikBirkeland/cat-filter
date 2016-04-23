@@ -63,8 +63,8 @@ app.vm = (function () {
    vm.init = function () {
       vm.sourceList = app.vm.initList(app.vm.sourceList)
       vm.targetList = app.vm.initList(app.vm.targetList)
-      vm.processSourceInput = app.vm.processInput(sourceList)
-      vm.processTargetInput = app.vm.processInput(targetList)
+      vm.processSourceInput = app.vm.processInput(vm.sourceList)
+      vm.processTargetInput = app.vm.processInput(vm.targetList)
    }
 
    return vm
@@ -107,4 +107,4 @@ app.view = function (ctrl) {
    ]
 }
 
-m.mount(document.getElementById('mountPoint'), app)
+m.mount(document.getElementById('mountPoint'), {controller: app.controller, view: app.view})
