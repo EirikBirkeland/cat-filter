@@ -15,7 +15,7 @@ const Util = {
    },
    initArray(len){
       let array = []
-      for(let i=0;i<len;i++){
+      for (let i = 0; i < len; i++) {
          array[i] = undefined
       }
       return array
@@ -31,23 +31,26 @@ app.Item = function (str) {
    this.notMatch = m.prop(false)
 }
 
-app.ItemList = Array;
+app.ItemList = Array
 
 app.vm = (function () {
 
    // TODO: Think about how I can improve Tatoeba by using this.
    // TODO: Add highlighting option for matches
-   // TODO: 
+   // TODO: Add buttons to sort the lines.
+   // TODO: Add parallell processing (web workers?) and 'submit' button.
 
    const vm = {}
 
-   const TABLE_LINES = 250
+   const TABLE_LINES = 1000
 
    vm.sourceList = Util.initArray(TABLE_LINES)
    vm.targetList = Util.initArray(TABLE_LINES)
 
-   vm.sourceMatchCount = 0
+   vm.sourceList.counter = 0
+   vm.targetList.counter = 0
 
+   // TODO: At present, the source and target segments are mutated. They should probably be preserved. (immutable data)
    vm.lists = m.prop('')
    m.request({method: "GET", url: "nob.json"})
       .then((data) => {
@@ -67,16 +70,16 @@ app.vm = (function () {
 
    vm.processInput = function (arrayToProcess) {
       return function (matchText) {
-         vm.sourceMatchCount = 0
+         // Reset the associated counter
+         arrayToProcess.counter = 0
          arrayToProcess.forEach(function (ele) {
-            if(!ele.value().match(matchText)) {
+            if (!ele.value().match(matchText)) {
                ele.notMatch(true)
-            }
-            else {
-               vm.sourceMatchCount++
+            } else {
+               // Increment the associated counter here
+               ++arrayToProcess.counter
                ele.notMatch(false)
             }
-
          })
       }
    }
@@ -88,7 +91,6 @@ app.vm = (function () {
       vm.processSourceInput = app.vm.processInput(vm.sourceList)
       vm.processTargetInput = app.vm.processInput(vm.targetList)
    }
-
    return vm
 })()
 
@@ -105,7 +107,6 @@ app.view = function (ctrl) {
          onclick: app.vm.combined
       }), "RegEx",
       m('br'),
-      "Matching: ", app.vm.sourceMatchCount,
       m('table', {
          border: 1
       }, [
@@ -113,11 +114,16 @@ app.view = function (ctrl) {
             m('tr', [
                m('th', 'Source'),
                m('th', 'Target')
+            ]),
+            m('tr', [
+               m('th', {textContent: app.vm.sourceList.counter, title: "Number of matches"}),
+               m('th', {textContent: app.vm.targetList.counter, title: "Number of matches"})
             ])
          ]),
          m('tbody', [
             app.vm.sourceList.map((ele, i) => {
-               return m('tr', [
+               // Hide entire line (TR element) if anything on it is matched.
+               return m('tr', {style: {display: (app.vm.sourceList[i].notMatch() || app.vm.targetList[i].notMatch() ? "none" : "")}}, [
                   m('td', {
                      contenteditable: '', style: {textDecoration: app.vm.sourceList[i].notMatch() ? "line-through" : ""}
                   }, app.vm.sourceList[i].value()),
