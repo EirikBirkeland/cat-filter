@@ -1,19 +1,19 @@
 "use strict"
 const m = require('mithril')
 const $ = require('jquery')
-window.m = m
+window.m = m // Exposing to global object just for testing purposes
 
 const Util = {
-   interleave(a, b){ // unused, but keep for later
-      if (a.length != b.length) throw new Error("Oops!")
+   interleave(a, b){
+      if (a.length !== b.length) throw new Error("The input arrays must be of equal length.")
       return a.reduce((acc, ele, i) => {
-         var arr = []
+         let arr = []
          arr.push(a[i], b[i])
          acc = acc.concat(arr)
          return acc
       }, [])
    },
-   initArray(len){
+   initArray(len){ // This method creates an iterable array, while "new Array(n)" doesn't. -E
       let array = []
       for (let i = 0; i < len; i++) {
          array[i] = undefined
@@ -21,8 +21,6 @@ const Util = {
       return array
    }
 }
-
-//model
 
 const app = {}
 
@@ -52,7 +50,7 @@ app.vm = (function () {
 
    // TODO: At present, the source and target segments are mutated. They should probably be preserved. (immutable data)
    vm.lists = m.prop('')
-   m.request({method: "GET", url: "nob.json"})
+   m.request({method: "GET", url: "nob.json"}) // m.request functions are pre-promisified, so no need for bluebird!
       .then((data) => {
          vm.sourceList.forEach((ele, i) => {
             vm.sourceList[i].value(data[i][0])
@@ -70,15 +68,14 @@ app.vm = (function () {
 
    vm.processInput = function (arrayToProcess) {
       return function (matchText) {
-         // Reset the associated counter
+         // The input array-object should have its own "counter" property
          arrayToProcess.counter = 0
          arrayToProcess.forEach(function (ele) {
             if (!ele.value().match(matchText)) {
                ele.notMatch(true)
             } else {
-               // Increment the associated counter here
-               ++arrayToProcess.counter
                ele.notMatch(false)
+               arrayToProcess.counter += 1
             }
          })
       }
@@ -87,7 +84,6 @@ app.vm = (function () {
    vm.init = function () {
       vm.sourceList = app.vm.initList(app.vm.sourceList)
       vm.targetList = app.vm.initList(app.vm.targetList)
-      window.sourceList = vm.sourceList
       vm.processSourceInput = app.vm.processInput(vm.sourceList)
       vm.processTargetInput = app.vm.processInput(vm.targetList)
    }
