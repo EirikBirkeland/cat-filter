@@ -1,4 +1,5 @@
 module.exports = {
+// Replace entry file as needed
    entry: './mymithril.js',
    output: {
       path: __dirname,
